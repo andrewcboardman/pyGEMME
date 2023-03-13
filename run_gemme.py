@@ -7,10 +7,7 @@
 import argparse
 from pathlib import Path
 from datetime import datetime
-from gemmeAnal import (
-    JET_realign,
-    GEMME_models_fit_predict
-)
+from pyGEMME.model import transform_fit_predict
 
 
 def check_argument_groups(parser, arg_dict, group, argument):
@@ -133,7 +130,7 @@ def parse_command_line():
 
 def run(input_file,mutations_file,retrieval_method, blast_file=None,fasta_file=None,n_iter=1,N_seqs_max=20000, keep_tmp_files=False):
     """
-    Run selected parts of pipeline
+    Run pipeline
     """
 
     # make jobname
@@ -154,25 +151,17 @@ def run(input_file,mutations_file,retrieval_method, blast_file=None,fasta_file=N
     else:
         raise Exception('BLAST and FASTA input given simultaneously!')
 
-    jet_output = JET_realign(
+    transform_fit_predict(
         alignment_file,
         output_dir=jobname,
         n_iter=n_iter,
         N_seqs_max=N_seqs_max,
         mode = mode,
         retrieval_method=retrieval_method,
-        jet_conf_file='custom.conf',
-        keep_tmp_files=keep_tmp_files
-        )
-
-    GEMME_models_fit_predict(
-        jet_output['query_name'],
-        jet_output['query_sequence_file'],
-        jet_output['jet_alignment_file'],
-        jet_output['jet_results_file'],
-        output_dir=jobname,
-        blosum62_file="blosum62p.txt", 
-		alphabet_file="./alphabets/lz-bl.7.txt",
+        jet_conf_file='jet.conf',
+        keep_tmp_files=keep_tmp_files,
+        model_subs_matrix="blosum62p", 
+		alphabet_file="pyGEMME/alphabets/lz-bl.7.txt",
         mutations_file=mutations_file
         )
 
