@@ -1,4 +1,5 @@
 import pyGEMME.tools
-import pyGEMME.jet_matrices
-import pyGEMME.matrix
-import pyGEMME.alphabets
+import pyGEMME.data
+import pyGEMME.pred
+import pyGEMME.model
+import pyGEMME.run_jet

@@ -1,0 +1,13 @@
+{
+    "jet":{
+        "n_iter":1,
+        "N_seqs_max":20000,
+        "retrieval_method":"input",
+        "input_format":"fasta"
+    },
+    "model":{
+        "subs_matrix":"blosum62p",
+        "alphabet":"lz-bl.7",
+        "alpha":0.6
+    }
+}
