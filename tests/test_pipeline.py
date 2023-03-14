@@ -17,7 +17,7 @@ def test_run_jet():
     assert proc.stderr.read().decode().split('\n')[0] == 'missing option(s)'
 
 def test_JET_example():
-    input_file = 'example/aliBLAT.fasta'
+    input_file = 'examples/blat_ecolx/aliBLAT.fasta'
     output_dir = 'tests/BLAT_JET'
     if os.path.exists(output_dir):
         shutil.rmtree(output_dir)
@@ -72,7 +72,7 @@ def test_model_example():
     assert os.path.exists(output_dir + query_name + '_predictions.csv')
 
 def test_pipeline():
-    input_file = 'example/aliBLAT.fasta'
+    input_file = 'examples/blat_ecolx/aliBLAT.fasta'
     output_dir = 'tests/BLAT_pipeline/'
     if os.path.exists(output_dir):
         shutil.rmtree(output_dir)

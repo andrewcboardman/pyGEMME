@@ -1,7 +1,0 @@
-recursive include pyGEMME/jet *.class *.jar
-include pyGEMME/jet_matrices/*.txt
-include pyGEMME/matrix/*.txt
-include pyGEMME/alphabets/*.txt
-include pyGEMME/tools/*
-include pyGEMME/pred/*.R
-include pyGEMME/*.conf

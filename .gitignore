@@ -1,0 +1,4 @@
+#*.jpg
+pyGEMME.egg-info/*
+dist/*
+examples/adrb2/*
