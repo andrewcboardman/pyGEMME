@@ -1,5 +1,1 @@
-import pyGEMME.tools
-import pyGEMME.data
-import pyGEMME.pred
-import pyGEMME.model
-import pyGEMME.run_jet
+from . import data, tools, resources, pred, model, run_jet, find_resources
