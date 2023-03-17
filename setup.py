@@ -20,7 +20,7 @@ print(jet_class_files)
 setup(
     name='pyGEMME',
     version='0.1.0',
-    install_requires=['certifi==2022.12.7', 'pandas'],
+    install_requires=['certifi==2022.12.7', 'pandas', 'itertools-resources','scipy', 'biopython','tqdm','matplotlib'],
     packages=find_packages(),
     package_dir={},
     url='https://github.com/andrewcboardman/pyGEMME',

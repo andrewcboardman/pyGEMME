@@ -34,6 +34,7 @@ alpha = 0.6
 
 # read alignment and convert to matrix
 ali=as.matrix.alignment(read.alignment(alignment_file,format="fasta"))
+# convert all non-amino acids to "-"
 ali[!ali%in%aa] = "-"
 npos = dim(ali)[[2]]
 # convert to binary matrix with respect to the query (0: identical, 1: different)
@@ -80,9 +81,7 @@ res = list(
   computePSSM(aliCons,N[2], npos, subs_matrix_rowsums, subs_matrix, aa),
   computePSSM(aliVeryCons,N[3], npos, subs_matrix_rowsums, subs_matrix, aa)
   )
-write.table(res[[1]][[3]],paste0(prot,"_pssm.txt"))
-write.table(res[[2]][[3]],paste0(prot,"_pssm60.txt"))
-write.table(res[[3]][[3]],paste0(prot,"_pssm80.txt"))
+
 
 ##### Modelling
 
@@ -142,6 +141,12 @@ if(mutfile_does_not_exist) {
 
 
 ## Write outputs to file
+write.table(res[[1]][[3]],paste0(prot,"_pssm.txt"))
+write.table(res[[2]][[3]],paste0(prot,"_pssm60.txt"))
+write.table(res[[3]][[3]],paste0(prot,"_pssm80.txt"))
+
+
+write.table(distTrace, paste0(prot,"_evolDist.mat"))
 
 write.table(conservation,paste0(prot,"_conservation.txt"))
 # output the sequence counts log-odd ratios

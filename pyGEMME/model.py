@@ -1,15 +1,29 @@
 import subprocess
+import numpy as np
 import pandas as pd
-from Bio import SeqIO
+from Bio import SeqIO, AlignIO
 import os 
 import glob
-from .run_jet import JET_realign
+from scipy import stats
+from .trace import JET_realign
 from .find_resources import (
     get_default_params,
     get_rscript_filename, 
     get_subs_matrix_filename, 
     get_alphabet_filename
 )
+
+alphabet = [c.upper() for c in ("a","c","d","e","f","g","h","i","k","l","m","n","p","q","r","s","t","v","w","y")]
+
+coarsegrained_alphabet = [
+    'IMVL',
+    'FWY',
+    'G',
+    'P',
+    'CAST',
+    'NHQED',
+    'RK'
+]
 
 
 # Run Rscript to compute predictions
@@ -140,3 +154,111 @@ def transform_fit_predict(alignment_file, output_dir, params=None, mutations_fil
         params = params['model'],
         mutations_file=mutations_file
         )
+
+
+def predict_gemme(
+        msa, 
+        trace,
+        thresh = 5, 
+        alpha = 0.6,
+        alphabet = alphabet,
+        coarsegrained_alphabet = coarsegrained_alphabet
+        ):
+    msa_array = np.array(msa)
+    N, L = msa_array.shape
+    nchar = len(alphabet)
+
+    msa_array_binary = np.zeros((N, L, nchar),dtype='bool')
+    for i, aa in enumerate(alphabet):
+        msa_array_binary[:,:,i] = msa_array == aa
+
+    aa_counts = msa_array_binary.sum(axis=0)
+    aa_counts_pseudo = np.maximum(aa_counts, 1)
+    wt_counts = aa_counts[msa_array_binary[0]]
+    ind_pred = np.log(aa_counts_pseudo / wt_counts.reshape(L, 1))
+
+
+    msa_array_binary_reshape = np.reshape(msa_array_binary, (N, L * nchar)) 
+    position_weights = trace**2
+    position_weights_char = np.repeat(position_weights, repeats=nchar)
+
+    msa_array_weighted_positions = msa_array_binary_reshape * position_weights_char
+    sim  = msa_array_weighted_positions @ msa_array_binary_reshape[0] 
+    max_sim = (np.ones(L) * position_weights).sum()  
+    d_evol = max_sim - sim
+
+    # find all distances to query
+    seq, pos, aa = np.where(msa_array_binary)   
+    max_dist = d_evol.max()
+    epi = np.ones((N, L, nchar)) * (max_dist)
+    epi[seq, pos, aa] = d_evol[seq]
+
+    # Minimum distance to query
+    epi_min = epi[1:].min(axis=0) 
+    epi_secondmin = np.partition(epi, 1, axis=0)[1]
+    epi_min_combi = np.where(
+        epi_secondmin - epi_min > thresh,
+        epi_secondmin, epi_min
+    )
+    
+    epi_pred = np.select(
+        condlist = [
+            msa_array_binary[0],
+            aa_counts<=1,
+            aa_counts>1
+        ],
+        choicelist=[
+            0,
+            -100,# * 1.15, # don't like this but it works - could use NA
+            epi_min_combi            
+        ]
+    )
+    
+    # Some bizarre normalisation 
+    epi_pred_norm = epi_pred / np.sum(trace**2) 
+    epi_pred_norm[epi_pred_norm < 0] = 1
+    #epi_pred = np.nan_to_num(epi_pred,nan=1)
+
+    
+    # the actual normalisation 
+    norm_epi = epi_pred / epi_pred.max()
+    norm_epi[norm_epi < 0] = 1
+    norm_epi = -norm_epi * trace.reshape((L, 1))
+
+    # This is sensible thank Jesus
+    norm_ind = ind_pred * trace.reshape((L, 1))
+
+    # Weird ass reduced alphabet calculation
+    nchar_reduced = len(coarsegrained_alphabet)
+    msa_array_binary_reduced = np.zeros((N, L, nchar_reduced),dtype=bool)
+    for i, aa_set in enumerate(coarsegrained_alphabet):
+        msa_array_binary_reduced[:,:,i] = np.isin(msa_array, list(aa_set))
+    aa_counts_reduced = msa_array_binary_reduced.sum(axis=0)
+    aa_counts_pseudo_reduced = np.maximum(aa_counts_reduced, 1)
+    wt_counts_reduced = aa_counts_reduced[msa_array_binary_reduced[0]]
+    ind_pred_reduced = np.log(aa_counts_pseudo_reduced / wt_counts_reduced.reshape(L, 1))
+    converter = np.zeros((nchar_reduced, nchar))
+    for i, aa_set in enumerate(coarsegrained_alphabet):
+        converter[i, :] = np.isin(np.array(alphabet), list(aa_set))
+    ind_pred_reduced = ind_pred_reduced @ converter
+
+    # combine 
+    norm_epi_combine = epi_pred / epi_pred.max()
+    norm_epi_combine[norm_epi_combine < 0] = 1
+    norm_factor = -np.log(aa_counts.sum(axis=1).max())
+    alpha = 0.6
+    combi = alpha * norm_epi_combine * norm_factor + (1 - alpha) * ind_pred_reduced    
+    norm_combi = combi * trace.reshape((L, 1))
+
+    df = pd.DataFrame(dict(
+        wt = msa_array[0].repeat(nchar),
+        mut = np.tile(alphabet, L),
+        pos = (np.arange(L) + 1).repeat(nchar),
+        combi = norm_combi.reshape(L * nchar),
+        norm_epi = norm_epi.reshape(L * nchar),
+        norm_ind = norm_ind.reshape(L * nchar),
+        epi = epi_pred_norm.reshape(L * nchar),
+        ind = ind_pred.reshape(L * nchar),
+    ))
+    return df, d_evol
+
