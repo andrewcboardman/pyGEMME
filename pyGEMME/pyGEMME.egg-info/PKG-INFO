@@ -1,0 +1,9 @@
+Metadata-Version: 2.1
+Name: pyGEMME
+Version: 0.1
+Summary: A python reimplementation of the GEMME algorithm (copyright Elodie Laine, 2019)
+Home-page: https://github.com/andrewcboardman/pyGEMME.git
+Author: Andrew Boardman
+Author-email: acb95@cam.ac.uk
+License: MIT
+License-File: LICENSE.txt

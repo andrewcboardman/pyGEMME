@@ -1,0 +1,11 @@
+LICENSE.txt
+README.md
+pyproject.toml
+setup.py
+pyGEMME/pyGEMME.egg-info/PKG-INFO
+pyGEMME/pyGEMME.egg-info/SOURCES.txt
+pyGEMME/pyGEMME.egg-info/dependency_links.txt
+pyGEMME/pyGEMME.egg-info/requires.txt
+pyGEMME/pyGEMME.egg-info/top_level.txt
+scripts/MMseqs_query.py
+scripts/pyGEMME.py

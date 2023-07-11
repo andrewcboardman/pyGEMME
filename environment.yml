@@ -1,6 +1,4 @@
-name: variants
 channels:
-  - defaults
   - conda-forge
 dependencies:
   - biopython
