@@ -2,3 +2,4 @@
 pyGEMME.egg-info/*
 dist/*
 examples/adrb2/*
+tests/data/*
