@@ -1,0 +1,135 @@
+***** Format Files ******
+copy file:/project/gemme/adrb2/adrb2.pdb
+***** End Format Files ******
+***** JET analysis ******
+Alignment file:/project/gemme/adrb2/adrb2_A.fasta
+Analysis of sequence: A
+format ok
+Selected 6432 sequences before filtering
+Filtering sequences (Iteration 1):
+  -Identity: Removed 0 seqs
+  -Redundancy: Removed 0 seqs
+  -Similar names: Removed 99 seqs
+  -Gaps: Removed 0 seqs
+  -Length: Removed 0 seqs
+  -EValue: Removed 0 seqs
+  -CPU Load: Removed 0 seqs
+Selected 6333 after filtering
+Filtering sequences (Iteration 2):
+  -Identity: Removed 205 seqs
+  -Redundancy: Removed 0 seqs
+  -Similar names: Removed 0 seqs
+  -Gaps: Removed 0 seqs
+  -Length: Removed 0 seqs
+  -EValue: Removed 0 seqs
+  -CPU Load: Removed 4918 seqs
+Selected 1210 after filtering
+Nb alignments:34 Nb sequences:34
+Final iterated blast partition:692 470 36 12
+proportion=0.5
+selected partition: 10 10 8 6
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_0.fasta -clw -out /project/gemme/adrb2/adrb2_0.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_1.fasta -clw -out /project/gemme/adrb2/adrb2_1.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_2.fasta -clw -out /project/gemme/adrb2/adrb2_2.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_3.fasta -clw -out /project/gemme/adrb2/adrb2_3.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_4.fasta -clw -out /project/gemme/adrb2/adrb2_4.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_5.fasta -clw -out /project/gemme/adrb2/adrb2_5.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_6.fasta -clw -out /project/gemme/adrb2/adrb2_6.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_7.fasta -clw -out /project/gemme/adrb2/adrb2_7.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_8.fasta -clw -out /project/gemme/adrb2/adrb2_8.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_9.fasta -clw -out /project/gemme/adrb2/adrb2_9.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_10.fasta -clw -out /project/gemme/adrb2/adrb2_10.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_11.fasta -clw -out /project/gemme/adrb2/adrb2_11.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_12.fasta -clw -out /project/gemme/adrb2/adrb2_12.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_13.fasta -clw -out /project/gemme/adrb2/adrb2_13.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_14.fasta -clw -out /project/gemme/adrb2/adrb2_14.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_15.fasta -clw -out /project/gemme/adrb2/adrb2_15.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_16.fasta -clw -out /project/gemme/adrb2/adrb2_16.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_17.fasta -clw -out /project/gemme/adrb2/adrb2_17.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_18.fasta -clw -out /project/gemme/adrb2/adrb2_18.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_19.fasta -clw -out /project/gemme/adrb2/adrb2_19.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_20.fasta -clw -out /project/gemme/adrb2/adrb2_20.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_21.fasta -clw -out /project/gemme/adrb2/adrb2_21.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_22.fasta -clw -out /project/gemme/adrb2/adrb2_22.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_23.fasta -clw -out /project/gemme/adrb2/adrb2_23.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_24.fasta -clw -out /project/gemme/adrb2/adrb2_24.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_25.fasta -clw -out /project/gemme/adrb2/adrb2_25.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_26.fasta -clw -out /project/gemme/adrb2/adrb2_26.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_27.fasta -clw -out /project/gemme/adrb2/adrb2_27.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_28.fasta -clw -out /project/gemme/adrb2/adrb2_28.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_29.fasta -clw -out /project/gemme/adrb2/adrb2_29.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_30.fasta -clw -out /project/gemme/adrb2/adrb2_30.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_31.fasta -clw -out /project/gemme/adrb2/adrb2_31.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_32.fasta -clw -out /project/gemme/adrb2/adrb2_32.aln
+Exit value: 0
+**********write**********
+Command: /usr/bin/muscle -in /project/gemme/adrb2/adrb2_33.fasta -clw -out /project/gemme/adrb2/adrb2_33.aln
+Exit value: 0
+
+
+***** End JET analysis ******

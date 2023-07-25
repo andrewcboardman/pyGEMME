@@ -1,6 +1,8 @@
 
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
+from itertools import product
 
 
 alphabet = [c.upper() for c in ("a","c","d","e","f","g","h","i","k","l","m","n","p","q","r","s","t","v","w","y")]
@@ -34,7 +36,7 @@ def estimate_distances(msa, trace):
     position_weights_char = np.repeat(position_weights, repeats=nchar)
 
     msa_array_weighted_positions = msa_array_binary_reshape * position_weights_char
-    sim  = msa_array_weighted_positions @ msa_array_binary_reshape[0] 
+    sim = msa_array_weighted_positions @ msa_array_binary_reshape[0] 
     max_sim = (np.ones(L) * position_weights).sum()  
     d_evol = max_sim - sim
 
@@ -42,108 +44,11 @@ def estimate_distances(msa, trace):
         seq = [seq.id for seq in msa],
         d_evol = d_evol
     ))
-    return msa_array, msa_array_binary, df_d_evol
-
-
-def independent_model(msa_array, trace, alphabet = alphabet, reduced_alphabet = coarsegrained_alphabet, reduced = False):
-    """Independent model"""
-    N, L = msa_array.shape
-
-    if not reduced:
-        nchar = len(alphabet)
-        msa_array_binary = np.zeros((N, L, nchar),dtype='bool')
-        for i, aa in enumerate(alphabet):
-            msa_array_binary[:,:,i] = msa_array == aa
-
-        aa_counts = msa_array_binary.sum(axis=0)
-        aa_counts_pseudo = np.maximum(aa_counts, 1)
-        wt_counts = aa_counts[msa_array_binary[0]]
-        
-        ind_pred = np.log(aa_counts_pseudo / wt_counts.reshape(L, 1))
-        norm_ind = ind_pred * trace.reshape((L, 1))
-
-    if reduced:
-        nchar_reduced = len(coarsegrained_alphabet)
-        msa_array_binary_reduced = np.zeros((N, L, nchar_reduced),dtype=bool)
-        for i, aa_set in enumerate(coarsegrained_alphabet):
-            msa_array_binary_reduced[:,:,i] = np.isin(msa_array, list(aa_set))
-
-        aa_counts_reduced = msa_array_binary_reduced.sum(axis=0)
-        aa_counts_pseudo_reduced = np.maximum(aa_counts_reduced, 1)
-        wt_counts_reduced = aa_counts_reduced[msa_array_binary_reduced[0]]
-
-        # Convert to predictions for full alphabet
-        nchar = len(alphabet)
-        ind_pred_reduced = np.log(aa_counts_pseudo_reduced / wt_counts_reduced.reshape(L, 1))
-        converter = np.zeros((nchar_reduced, nchar))
-        for i, aa_set in enumerate(coarsegrained_alphabet):
-            converter[i, :] = np.isin(np.array(alphabet), list(aa_set))
-        ind_pred_reduced = ind_pred_reduced @ converter
-        norm_ind = ind_pred_reduced * trace.reshape((L, 1))
-
-    return norm_ind
-
-
-def epistatic_model(msa_array, d_evol, trace,  thresh = 5):
-    N, L = msa_array.shape
-    nchar = len(alphabet)
-    msa_array_binary = np.zeros((N, L, nchar),dtype='bool')
-    for i, aa in enumerate(alphabet):
-        msa_array_binary[:,:,i] = msa_array == aa
-
-    # find all distances to query
-    seq, pos, aa = np.where(msa_array_binary)   
-    max_dist = d_evol.max()
-    epi = np.ones((N, L, nchar)) * (max_dist)
-    epi[seq, pos, aa] = d_evol[seq]
-
-    # Minimum distance to query
-    epi_min = epi[1:].min(axis=0) 
-    epi_secondmin = np.partition(epi, 1, axis=0)[1]
-    epi_min_combi = np.where(
-        epi_secondmin - epi_min > thresh,
-        epi_secondmin, epi_min
-    )
-    
-    # Epistatic model
-    aa_counts = msa_array_binary.sum(axis=0)
-    epi_pred = np.select(
-        condlist = [
-            msa_array_binary[0],
-            aa_counts<=1,
-            aa_counts>1
-        ],
-        choicelist=[
-            0,
-            -100,
-            epi_min_combi            
-        ]
-    )
-      
-    
-    # the actual normalisation 
-    norm_epi = epi_pred / epi_pred.max()
-    norm_epi[norm_epi < 0] = 1
-    norm_epi = -norm_epi * trace.reshape((L, 1))
-
-    return norm_epi
-
-
-def calc_norm_factor(msa_array, trace):
-    """Extra normalisation factor for epistatic model, origin unknown"""
-    N, L = msa_array.shape
-    nchar = len(alphabet)
-    msa_array_binary = np.zeros((N, L, nchar),dtype='bool')
-    for i, aa in enumerate(alphabet):
-        msa_array_binary[:,:,i] = msa_array == aa
-    aa_counts = msa_array_binary.sum(axis=0)
-    norm_factor = np.log(aa_counts.sum(axis=1).max())
-    norm_factor *= L/np.sum(trace**2)
-    return norm_factor
+    return df_d_evol
 
 
 def predict_fitness(
-        msa_array,
+        msa,
         trace,
         d_evol,
         thresh = 5, 
@@ -151,28 +56,98 @@ def predict_fitness(
         alphabet = alphabet,
         coarsegrained_alphabet = coarsegrained_alphabet
         ):
-    """Python reimplementation of GEMME modelling"""
-    N, L = msa_array.shape
+    """Estimate conservation of MSA using tree traces"""
+    N = len(msa)
+    L = len(msa[0])
     nchar = len(alphabet)
+    
+    coarsegrain_dict = {}
+    for aa in alphabet:
+        for i, group in enumerate(coarsegrained_alphabet):
+            if aa in list(group):
+                coarsegrain_dict[aa] = i
+    
+    # Convert to numpy array
+    msa_array = np.array(msa)
+    # Count matches to wild type AA
+    wt_counts = (msa_array == msa_array[0,:]).sum(axis=0)
 
-    # Independent model
-    norm_ind = independent_model(msa_array, trace, alphabet, coarsegrained_alphabet, reduced = False)
-
-    # Epistatic model
-    norm_epi = epistatic_model(msa_array, d_evol, trace, thresh = thresh)
-
-    # combine independent and epistatic models
-    norm_ind_reduced = independent_model(msa_array, trace, alphabet, coarsegrained_alphabet, reduced = True)    
-    norm_factor = calc_norm_factor(msa_array, trace)
-    # Some bizarre normalisation 
-    combi = alpha * norm_epi * norm_factor + (1 - alpha) * norm_ind_reduced  
-
-    df = pd.DataFrame(dict(
-        wt = msa_array[0].repeat(nchar),
-        mut = np.tile(alphabet, L),
-        pos = (np.arange(L) + 1).repeat(nchar),
-        combi = combi.reshape(L * nchar),
-        norm_epi = norm_epi.reshape(L * nchar),
-        norm_ind = norm_ind.reshape(L * nchar),
-    ))
+    # Coarse grain MSA
+    msa_array_coarse = np.zeros((N,L), dtype=int)
+    for aa in alphabet:
+        msa_array_coarse[np.where(msa_array==aa)] = coarsegrain_dict[aa]
+    # Count matches to wild type AA group   
+    wt_counts_coarse = (msa_array_coarse == msa_array_coarse[0,:]).sum(axis=0) 
+    
+    output = []
+    
+    for i, j in tqdm(product(range(L),range(nchar)), total = L * nchar):
+        pos = i + 1
+        aa_mut = alphabet[j]
+        
+        if aa_mut == msa_array[0,i]:
+            output.append({'pos': pos,
+            'aa_mut': aa_mut        
+        })
+            
+        else:
+                
+            # count number of matches in full alphabet
+            matches = msa_array[:,i]==aa_mut
+            # add pseudocount
+            mut_count_pseudo = np.maximum(matches.sum(), 1)
+            # take log ratio of mut count to wt count
+            ind_pred = np.log(mut_count_pseudo / wt_counts[i])
+            
+            # count number of matches in coarsegrained alphabet
+            matches_reduced = msa_array_coarse[:,i] == coarsegrain_dict[aa_mut]
+            # add pseudocount
+            mut_count_reduced = np.maximum(matches_reduced.sum(), 1)
+            # take log ratio of mut count to wt count
+            ind_pred_reduced = np.log(mut_count_reduced / wt_counts_coarse[i])
+            
+            # distance for matches
+            d_evol_match = d_evol[matches]
+            
+            if len(d_evol_match) == 0:
+                # If no matches, set to max
+                d_evol_min = np.max(d_evol)
+            elif len(d_evol_match) == 1:
+                # If one match, take that distance
+                d_evol_min = np.min(d_evol_match)
+            else:
+                # If more than one match, check the two best
+                # If second smallest distance is more than thresh larger than smallest,
+                # Take second smallest as true smallest (???)
+                d_evol_first, d_evol_second = list(np.partition(d_evol_match, 1)[:2])
+                if d_evol_second - d_evol_min > thresh:
+                    d_evol_min = d_evol_second
+                else: 
+                    d_evol_min = d_evol_first
+                    
+            output.append({
+                'pos': pos,
+                'aa_mut': aa_mut,
+                'd_evol_min': d_evol_min,
+                'ind_pred': ind_pred,
+                'ind_pred_reduced': ind_pred_reduced         
+            })
+       
+    df = pd.DataFrame(output)
+    # Normalise epistatic prediction to be between 0 and 1
+    df['d_evol_norm'] = -df.d_evol_min / np.max(df.d_evol_min)  
+    
+    # scale by max possible value for ind_pred
+    gap_counts = (msa_array == '-').sum(axis=0)
+    epi_norm_factor = np.log((N - gap_counts - wt_counts).max())
+    df['epi_pred'] = df.d_evol_norm  * epi_norm_factor
+    
+    # scale all predictions by trace
+    df['trace'] = df.pos.map(lambda x: trace[x-1])
+    df['ind_pred'] = df.ind_pred * df.trace
+    df['ind_pred_reduced'] = df.ind_pred_reduced * df.trace
+    df['epi_pred'] = df.epi_pred * df.trace    
+    
+    # combine epistatic and reduced independent with weighting factor alpha
+    df['combi'] = alpha * df.epi_pred + (1 - alpha) * df.ind_pred_reduced
     return df

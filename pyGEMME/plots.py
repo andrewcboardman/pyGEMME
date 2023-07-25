@@ -21,7 +21,7 @@ def plot_d_evol(d_evol):
 def plot_fitness(fitness):
     """Heatmap of fitness scores"""
     fig, ax = plt.subplots()
-    fitness = fitness.pivot(index='pos', columns='mut', values='combi')
+    fitness = fitness.pivot(index='pos', columns='aa_mut', values='combi')
     sns.heatmap(fitness, cmap='viridis_r')
     plt.xlabel('Residue index')
     plt.ylabel('Substitution')

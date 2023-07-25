@@ -53,11 +53,11 @@ def main():
         trace.to_csv(f'{output_dir}/trace.csv',index=False)
 
     ## Estimate evolutionary distances using trace
-    msa_array, msa_array_binary, d_evol = pyGEMME.estimate_distances(msa, trace.trace.values)
+    d_evol = pyGEMME.estimate_distances(msa, trace.trace.values)
     d_evol.to_csv(f'{output_dir}/d_evol.csv',index=False)
 
     ## Predict GEMME fitness scores
-    fitness = pyGEMME.predict_fitness(msa_array, trace.trace.values, d_evol.d_evol.values)
+    fitness = pyGEMME.predict_fitness(msa, trace.trace.values, d_evol.d_evol.values)
     fitness.to_csv(f'{output_dir}/fitness.csv',index=False)
 
     ## Visualise GEMME predictions (optional)
